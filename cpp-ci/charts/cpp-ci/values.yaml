@@ -46,12 +46,12 @@ service:
   ssh:
     type: NodePort
     port: 22
-    nodePort: 30080
+    nodePort: 32011
 
 resources:
   limits:
     cpu: 500m
-    memory: 2GMi
+    memory: 2Gi
   requests:
     cpu: 100m
     memory: 128Mi

@@ -6,14 +6,14 @@ metadata:
     {{- include "cpp-ci.labels" . | nindent 4 }}
 spec:
   capacity:
-    storage: {{ .Values.storage.size }}
+    storage: {{ .Values.storage.data.size }}
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain   
   storageClassName: ""
   local:
-    path: {{ .Values.storage.pathOnNode }}
+    path: {{ .Values.storage.data.pathOnNode }}
   nodeAffinity:
     required:
       nodeSelectorTerms:

@@ -9,7 +9,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.storage.size }}
+      storage: {{ .Values.storage.data.size }}
   storageClassName: ""
   volumeMode: Filesystem
   volumeName: {{ printf "%s-data" (include "cpp-ci.fullname" .) }}

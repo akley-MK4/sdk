@@ -14,6 +14,12 @@ MAPPING_CONTAINER_PATH = /home/$(CONTAINER_USER)/project_mapping
 test-run:
 	echo "test"   
 
+dc-build:
+	sudo docker build -f $(DOCKERFILE_PATH) -t $(IMAGE_NAME):$(IMAGE_VER) $(DOCKER_BUILD_DIR)
+	docker save $(IMAGE_NAME):$(IMAGE_VER) > $(IMAGE_NAME)-$(IMAGE_VER).tar
+	sudo ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images import $(IMAGE_NAME)-$(IMAGE_VER).tar
+	rm $(IMAGE_NAME)-$(IMAGE_VER).tar
+
 docker-build:
 	sudo docker build -f $(DOCKERFILE_PATH) -t $(IMAGE_NAME):$(IMAGE_VER) $(DOCKER_BUILD_DIR)
 
@@ -46,4 +52,4 @@ docker-rmi-repo-tag:
 	sudo docker rmi $(IMAGE_NAME):$(IMAGE_VER)
 
 
-.PHONY: docker-build docker-ps docker-run docker-start docker-stop docker-rm docker-rmi-repo docker-rmi-repo-tag build-daemon-app
+.PHONY: dc-build docker-build docker-ps docker-run docker-start docker-stop docker-rm docker-rmi-repo docker-rmi-repo-tag build-daemon-app

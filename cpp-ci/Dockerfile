@@ -27,8 +27,6 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     net-tools \
     vim \
-    # Networking
-    tcpdump \
     # Development Tools
     make \
     openssh-server \
