@@ -9,6 +9,9 @@ spec:
   ports:
     - port: {{ .Values.service.ssh.port }}
       targetPort: ssh
+      {{- if eq .Values.service.ssh.type "NodePort" }}
+      nodePort: {{ .Values.service.ssh.nodePort }}
+      {{- end }}
       protocol: TCP
       name: ssh
   selector:
