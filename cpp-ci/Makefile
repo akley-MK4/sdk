@@ -1,8 +1,8 @@
 all: test-run
 
-IMAGE_NAME = c-cpp-integration
-IMAGE_VER = v1.0.1
-CONTAINER_NAME = c-cpp-integration-v1
+IMAGE_NAME = cpp-ci
+IMAGE_VER = v1.0.0
+CONTAINER_NAME = cpp-ci
 CONTAINER_USER = op1
 MAPPING_SSH_PORT = 32012
 DOCKERFILE_PATH = $(PWD)/Dockerfile

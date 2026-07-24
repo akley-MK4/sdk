@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-data" (include "cpp-ci.fullname" .) }}
+  labels:
+    {{- include "cpp-ci.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: {{ printf "%s-data" (include "cpp-ci.fullname" .) }}
