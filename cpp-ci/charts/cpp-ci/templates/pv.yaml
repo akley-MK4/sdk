@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ printf "%s-data" (include "cpp-ci.fullname" .) }}
+  name: {{ printf "%s-mnt" (include "cpp-ci.fullname" .) }}
   labels:
     {{- include "cpp-ci.labels" . | nindent 4 }}
 spec:
   capacity:
-    storage: {{ .Values.storage.data.size }}
+    storage: {{ .Values.storage.mnt.size }}
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain   
   storageClassName: ""
   local:
-    path: {{ .Values.storage.data.pathOnNode }}
+    path: {{ .Values.storage.mnt.pathOnNode }}
   nodeAffinity:
     required:
       nodeSelectorTerms:

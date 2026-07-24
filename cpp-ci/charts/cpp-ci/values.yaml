@@ -2,7 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-nodeName: node1
+nodeName: nod1
+
+sshUser: op1
 
 image:
   repository: cpp-ci
@@ -50,14 +52,13 @@ service:
 
 resources:
   limits:
-    cpu: 500m
+    cpu: 1500m
     memory: 2Gi
   requests:
     cpu: 100m
     memory: 128Mi
 
 storage:
-  data:
+  mnt:
     size: 10Gi
-    pathOnNode: /data/cpp-ci
-    mountPath: /data
+    pathOnNode: /project_mapping

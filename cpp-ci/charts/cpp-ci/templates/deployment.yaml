@@ -43,12 +43,28 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: data
-              mountPath: {{  .Values.storage.data.mountPath }}
+            - name: mnt
+              mountPath: /mnt
               readOnly: false
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - |
+                    if [ ! -f /mnt/conan2/profiles/default ]; then
+                      echo 'Profile not found, detecting...'
+                      mkdir /mnt/conan2
+                      conan profile detect --force
+                      chown -R {{ .Values.sshUser }}:{{ .Values.sshUser }} /mnt/conan2
+                    else
+                      echo 'Profile already exists, skipping detect to preserve customizations'
+                      conan profile show default
+                    fi
       volumes:
-        - name: data
+        - name: mnt
           persistentVolumeClaim:
-            claimName: {{ printf "%s-data" (include "cpp-ci.fullname" .) }}
+            claimName: {{ printf "%s-mnt" (include "cpp-ci.fullname" .) }}
       nodeSelector:
         kubernetes.io/hostname: {{ .Values.nodeName }}

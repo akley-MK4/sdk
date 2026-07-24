@@ -97,6 +97,13 @@ RUN mkdir /run/sshd && \
     # Allow root login for provisioning (will run as non-root user later)
     echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
 
+ENV CONAN_HOME=/mnt/conan2
+#ENV CONAN_NON_INTERACTIVE=1
+#RUN mkdir $CONAN_HOME
+#RUN chown -R $USER_NAME:$USER_NAME $CONAN_HOME
+
+RUN echo "export CONAN_HOME=${CONAN_HOME}" >> /etc/profile && \
+echo "export PATH=$USER_BIN:$PATH" >> /etc/profile
 
 # ---------- 6. Initialize Conan Profile ----------
 # Switch to the non-root user to set up the Conan home directory
@@ -108,13 +115,11 @@ RUN yes | ssh-keygen -f /home/$USER_NAME/.ssh/id_rsa && touch /home/$USER_NAME/.
 #RUN mkdir -p bin project_mapping
 
 # Detect the compiler and create a default Conan profile
-RUN conan profile detect --force
+#RUN conan profile detect --force
 
 # Container Startup ----------
 # Switch back to root to run sshd
 USER root
-
-RUN echo "export PATH=$USER_BIN:$PATH" >> /etc/profile
 
 # Set the working directory where the project will be mounted
 WORKDIR /workspace
