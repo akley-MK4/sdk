@@ -53,14 +53,13 @@ spec:
                   - sh
                   - -c
                   - |
-                    if [ ! -f /mnt/conan2/profiles/default ]; then
+                    if [ ! -d /mnt/conan2 ]; then
                       echo 'Profile not found, detecting...'
                       mkdir /mnt/conan2
                       conan profile detect --force
                       chown -R {{ .Values.sshUser }}:{{ .Values.sshUser }} /mnt/conan2
                     else
                       echo 'Profile already exists, skipping detect to preserve customizations'
-                      conan profile show default
                     fi
       volumes:
         - name: mnt
