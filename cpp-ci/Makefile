@@ -1,55 +1,45 @@
 all: test-run
 
-IMAGE_NAME = cpp-ci
-IMAGE_VER = v1.0.0
-CONTAINER_NAME = cpp-ci
-CONTAINER_USER = op1
-MAPPING_SSH_PORT = 32012
-DOCKERFILE_PATH = $(PWD)/Dockerfile
-DOCKER_BUILD_DIR = $(PWD)
-SLEEP_SECS=2
-MAPPING_HOST_PATH = ~/project_mapping
-MAPPING_CONTAINER_PATH = /home/$(CONTAINER_USER)/project_mapping
-
 test-run:
-	echo "test"   
+	echo "test"  
 
-dc-build:
-	sudo docker build -f $(DOCKERFILE_PATH) -t $(IMAGE_NAME):$(IMAGE_VER) $(DOCKER_BUILD_DIR)
-	docker save $(IMAGE_NAME):$(IMAGE_VER) > $(IMAGE_NAME)-$(IMAGE_VER).tar
-	sudo ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images import $(IMAGE_NAME)-$(IMAGE_VER).tar
-	rm $(IMAGE_NAME)-$(IMAGE_VER).tar
+DOCKER_BUILD_DIR = $(PWD)
+CONTAINERD_SOCK = /run/k3s/containerd/containerd.sock
 
-docker-build:
-	sudo docker build -f $(DOCKERFILE_PATH) -t $(IMAGE_NAME):$(IMAGE_VER) $(DOCKER_BUILD_DIR)
+# CPP-CI Image
+IMG_CI_NAME = cpp-ci
+IMG_CI_VER = v1.0.0
+CI_DOCKERFILE_PATH = $(PWD)/Dockerfile.CI
 
-docker-ps:
-	sudo docker ps -f name=$(CONTAINER_NAME)
+ci-build:
+	sudo docker build -f $(CI_DOCKERFILE_PATH) -t $(IMG_CI_NAME):$(IMG_CI_VER) $(DOCKER_BUILD_DIR)
+	docker save $(IMG_CI_NAME):$(IMG_CI_VER) > $(IMG_CI_NAME)-$(IMG_CI_VER).tar
+	sudo ctr --address $(CONTAINERD_SOCK) --namespace k8s.io images import $(IMG_CI_NAME)-$(IMG_CI_VER).tar
+	rm $(IMG_CI_NAME)-$(IMG_CI_VER).tar
 
-docker-run:
-	chmod 777 $(MAPPING_HOST_PATH)
-	sudo docker run -d -p $(MAPPING_SSH_PORT):22 --privileged=true -v $(MAPPING_HOST_PATH):$(MAPPING_CONTAINER_PATH) --name $(CONTAINER_NAME) $(IMAGE_NAME):$(IMAGE_VER)
-	sleep $(SLEEP_SECS)
-	sudo docker ps -f name=$(CONTAINER_NAME)
-	sudo docker logs $(CONTAINER_NAME)
-
-docker-start:
-	sudo docker start $(CONTAINER_NAME)
-	sleep $(SLEEP_SECS)
-	sudo docker ps -f name=$(CONTAINER_NAME)
-
-docker-stop:
-	sudo docker stop $(CONTAINER_NAME)
-
-docker-rm:
-	sudo docker stop $(CONTAINER_NAME)
-	sudo docker rm $(CONTAINER_NAME)
-
-docker-rmi-repo:
-	sudo docker rmi $(IMAGE_NAME)
-
-docker-rmi-repo-tag:
-	sudo docker rmi $(IMAGE_NAME):$(IMAGE_VER)
+ci-rmi-repo:
+	sudo docker rmi $(IMG_CI_NAME)
+	
+ci-rmi-repo-tag:
+	sudo docker rmi $(IMG_CI_NAME):$(IMG_CI_VER)
 
 
-.PHONY: dc-build docker-build docker-ps docker-run docker-start docker-stop docker-rm docker-rmi-repo docker-rmi-repo-tag build-daemon-app
+# CPP-Compiler Image
+IMG_COMPILER_NAME = cpp-compiler
+IMG_COMPILER_VER = v1.0.0
+IMG_COMPILER_DOCKERFILE_PATH = $(PWD)/Dockerfile.Compiler
+
+compiler-build:
+	sudo docker build -f $(IMG_COMPILER_DOCKERFILE_PATH) -t $(IMG_COMPILER_NAME):$(IMG_COMPILER_VER) $(DOCKER_BUILD_DIR)
+	docker save $(IMG_COMPILER_NAME):$(IMG_COMPILER_VER) > $(IMG_COMPILER_NAME)-$(IMG_COMPILER_VER).tar
+	sudo ctr --address $(CONTAINERD_SOCK) --namespace k8s.io images import $(IMG_COMPILER_NAME)-$(IMG_COMPILER_VER).tar
+	rm $(IMG_COMPILER_NAME)-$(IMG_COMPILER_VER).tar
+
+compiler-rmi-repo:
+	sudo docker rmi $(IMG_COMPILER_NAME)
+
+compiler-rmi-repo-tag:
+	sudo docker rmi $(IMG_COMPILER_NAME):$(IMG_COMPILER_VER)
+
+
+.PHONY: ci-build ci-rmi-repo ci-rmi-repo-tag compiler-build compiler-rmi-repo compiler-rmi-repo-tag
