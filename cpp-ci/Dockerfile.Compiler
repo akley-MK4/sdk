@@ -1,0 +1,74 @@
+# ---------- Base Image ----------
+# Use Ubuntu 22.04 (Jammy) for modern glibc and good Conan binary compatibility
+FROM ubuntu:jammy
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+RUN sed -i 's@https://@http://@g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN sed -i 's@http://archive.ubuntu.com/ubuntu/@https://mirrors.tuna.tsinghua.edu.cn/ubuntu/@g' /etc/apt/sources.list && \
+    sed -i 's@http://security.ubuntu.com/ubuntu/@https://mirrors.tuna.tsinghua.edu.cn/ubuntu/@g' /etc/apt/sources.list
+
+# System Dependencies
+RUN apt-get update && apt-get install -y \
+    # system
+    sudo \
+    curl \
+    wget \
+    unzip \
+    locales \
+    jq \
+    iputils-ping \
+    net-tools \
+    vim \
+    # Development Tools
+    make \
+    # Utilities
+    git \
+    # dev
+    gcc \
+    g++ \
+    # Compiler toolchain (GCC, G++, Make)
+    build-essential \
+    autoconf \
+    libtool \
+    pkg-config \
+    cmake \
+    clang \
+    libc++-dev \
+    # Build systems
+    ninja-build \
+    # Debugging & SSH (Required for VS Code Remote)
+    gdb \
+    # Python (Required for Conan)
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Locale Settings
+# Set locale to UTF-8 to avoid encoding issues in logs and compilers
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
+
+# Install Conan (C/C++ Package Manager)
+# Upgrade pip and install Conan 2.x
+RUN pip3 install --upgrade pip && \
+    pip3 install "conan>=2.0" && \
+    pip3 install meson ninja
+
+
+# Detect the compiler and create a default Conan profile
+RUN conan profile detect --force
+
+# Set the working directory where the project will be mounted
+WORKDIR /workspace
+
+CMD ["/bin/bash"]
